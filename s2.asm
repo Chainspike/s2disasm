@@ -60478,7 +60478,7 @@ Obj56_Index:	offsetTable
 ; loc_2EF36:
 Obj56_Init:
 	move.l	#Obj56_MapUnc_2FAF8,mappings(a0)	; main object
-	move.w	#make_art_tile(ArtTile_ArtNem_Eggpod_1,1,0),art_tile(a0) ; vehicle with ability to fly, bottom part
+	move.w	#make_art_tile(ArtTile_ArtNem_Eggpod_1,0,0),art_tile(a0) ; vehicle with ability to fly, bottom part
 	ori.b	#4,render_flags(a0)
 	move.b	#$81,subtype(a0) 
 	move.w	#$29D0,x_pos(a0)
@@ -60529,7 +60529,7 @@ Obj56_Init:
 	subi_.w	#8,objoff_38(a0)
 	move.w	#$2AF0,x_pos(a0)
 	move.w	#$2F8,y_pos(a0)
-	jsr	(SingleObjLoad2).l	; propeller normal
+	;jsr	(SingleObjLoad2).l	; propeller normal
 	bne.s	+	; rts
 
 	_move.b	#ObjID_EHZBoss,id(a1) ; load obj56
@@ -60698,7 +60698,7 @@ loc_2F2CC:
 loc_2F2E0:	; Obj56_VehicleMain_Sub2_2:
 	subi_.w	#1,objoff_2A(a0)	; timer
 	bpl.w	JmpTo35_DisplaySprite
-	move.w	#-$200,x_vel(a0)
+	move.w	#-$300,x_vel(a0)   ;drill tank main speed
 	addq.b	#2,routine_secondary(a0)
 	move.b	#$F,collision_flags(a0)
 	bset	#1,objoff_2D(a0)	; boss now active and moving
@@ -60766,7 +60766,7 @@ off_2F39C:	offsetTable
 
 loc_2F3A2:	; Obj56_VehicleMain_SubA_0:
 	bclr	#0,objoff_2D(a0)	; robotnik off ground
-	jsrto	(SingleObjLoad2).l, JmpTo21_SingleObjLoad2	; reload propeller after defeat
+	;jsrto	(SingleObjLoad2).l, JmpTo21_SingleObjLoad2	; reload propeller after defeat
 	bne.w	+	; rts
 
 	_move.b	#ObjID_EHZBoss,id(a1) ; load obj56
@@ -61065,7 +61065,7 @@ loc_2F6E8:	; routine for all wheels
 loc_2F6FA:
 	tst.b	routine_secondary(a0)
 	beq.s	loc_2F706
-	move.w	#-$200,x_vel(a0)	; if reached position, set velocity
+	move.w	#-$300,x_vel(a0)	; if reached position, set velocity  |drill tank wheel speed
 
 loc_2F706:
 	lea	(Ani_obj56_b).l,a1

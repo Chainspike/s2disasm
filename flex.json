@@ -1,0 +1,65 @@
+{
+    "description": "Flex 2 Project File",
+    "name": "SonicNeon",
+    "objects": [
+        {
+            "name": "",
+            "palettes": [
+                {
+                    "path": "art\\palettes\\SonicAndTails.bin",
+                    "length": 1
+                }
+            ],
+            "art": {
+                "path": "art\\nemesis\\Eggpod.bin",
+                "compression": "Nemesis",
+                "accessor": ""
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\obj56_c.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "HUD",
+            "palettes": [
+                {
+                    "path": "art\\palettes\\SonicAndTails.bin",
+                    "length": 1
+                },
+                {
+                    "path": "art\\palettes\\EHZ.bin",
+                    "length": 3
+                }
+            ],
+            "art": {
+                "path": "art\\nemesis\\HUD.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\hud_c.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        }
+    ]
+}
