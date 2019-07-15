@@ -245,6 +245,33 @@
                 "label": "",
                 "accessor": ""
             }
+        },
+        {
+            "name": "water splash",
+            "palettes": [
+                {
+                    "path": "art\\palettes\\SonicAndTails.bin",
+                    "length": 1
+                }
+            ],
+            "art": {
+                "path": "art\\nemesis\\Top of water in HPZ and CNZ.bin",
+                "compression": "Nemesis",
+                "accessor": ""
+            },
+            "mappings": {
+                "path": "",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
         }
     ]
 }

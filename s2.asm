@@ -85326,7 +85326,7 @@ Debug_SpawnObject:
 ; loc_41C56:
 Debug_ExitDebugMode:
 	btst	#button_B,(Ctrl_1_Press).w
-	beq.s	return_41CB6
+	beq.w   return_41CB6
 	; Exit debug mode
 	moveq	#0,d0
 	move.w	d0,(Debug_placement_mode).w
@@ -85334,6 +85334,17 @@ Debug_ExitDebugMode:
         move.b  #1,(Update_HUD_rings).w
         move.b  #1,(Update_HUD_score).w
 	lea	(MainCharacter).w,a1 ; a1=character
+	move.b	#$13,y_radius(a1)
+        cmpi.w    #2,(Player_mode).w
+        bne.s    .notTails
+        move.b    #$F,y_radius(a1)
+        move.l    #MapUnc_Tails,mappings(a1)
+        move.w    #make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a1)
+        tst.w    (Two_player_mode).w
+        beq.s    .notTwoPlayerMode
+        move.w    #make_art_tile_2p(ArtTile_ArtUnc_Tails,0,0),art_tile(a1)
+        bra.s    .notTwoPlayerMode
+.notTails:
 	move.l	#Mapunc_Sonic,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
 	tst.w	(Two_player_mode).w
@@ -85342,7 +85353,7 @@ Debug_ExitDebugMode:
 ; loc_41C82:
 .notTwoPlayerMode:
 	bsr.s	Debug_ResetPlayerStats
-	move.b	#$13,y_radius(a1)
+	;move.b	#$13,y_radius(a1)
 	move.b	#9,x_radius(a1)
 	move.w	(Camera_Min_Y_pos_Debug_Copy).w,(Camera_Min_Y_pos).w
 	move.w	(Camera_Max_Y_pos_Debug_Copy).w,(Camera_Max_Y_pos).w
@@ -86275,7 +86286,7 @@ PlrList_Dez2_End
 ;---------------------------------------------------------------------------------------
 PlrList_Arz1: plrlistheader
 	plreq ArtTile_ArtNem_ARZBarrierThing, ArtNem_ARZBarrierThing
-	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface2
+	plreq ArtTile_ArtNem_WaterSurface, ArtNem_WaterSurface;2
 	plreq ArtTile_ArtNem_Leaves, ArtNem_Leaves
 	plreq ArtTile_ArtNem_ArrowAndShooter, ArtNem_ArrowAndShooter
 PlrList_Arz1_End
