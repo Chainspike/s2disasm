@@ -1,0 +1,95 @@
+vgm2smps by NBAH (aka Ivan YO)
+Usage:
+  vgm2smps <input_file_name> [<output_file_name>] [-fm_enable=1]
+    [-fm_chls=111111] [-psg_enable=1]
+    [psg_chls=1111] [-fps=60] [-length=0] [-start=0] [-fm_enable_keyoff_notes=0]
+ [-dac_export=0]
+Parameters:
+  [<output_file_name>]
+    Output SMPS file name.
+    Default: <input_file_name>, but with.bin extension.
+  [-fm_enable=1]
+    Enable FM. Can be either enabled (1) or disabled (0).
+    Default: 1
+  [-fm_chls=111111]
+    Enable FM channels.Can be either enabled(1) or disabled(0).
+    If you only want to disable first three channels, you may write - fm_chls=00
+0
+    Default: 111111
+  [-psg_enable=1]
+    Same as FM, but with a PSG.
+  [-psg_chls=1111]
+    Same as FM, but with a PSG.
+  [-fps=60]
+    Set the parsing speed.
+  [-length=0]
+    Set the output SMPS length in frames.
+    Default: 0 -- source's length.
+  [-start=0]
+    Set the start song offset in frames.
+    Default: 0 -- without an offset.
+  [-fm_enable_keyoff_notes=0]
+    Enable support of notes even if key is off.
+    SMPS does not support frequency changing after key off.
+    Warning! Result may be corrupt.
+    Default: 0
+  [-dac_export=0]
+    Enable found DAC samples from the VGM file. Saves into input file folder.
+  [-altins=0]
+    Enable altarnate "smart" instrument and note detecting.
+    If real frequency (Hz) of note is lower then 0 octave,
+    instrument makes lower and notes makes upper in octave.
+
+C:\Users\Mecha Sonic\Documents\SONIC HACKING\vgm2smps_Win32>
+
+
+
+
+C:\Users\Mecha Sonic\Documents\SONIC HACKING\vgm2smps_Win32>C:\Users\Mecha Sonic\Documents\SONIC HACKING\vgm2smps_Win32\17 - boss.vgz [17 -
+boss] [-fm_enable=1] [-fm_chls=1] [-psg_enable=1] [-psg_chls=1] [-fps=60] [-leng
+th=36] [-start=0] [-fm_enable_keyoff_notes=0] [-dac_export=1] [altins=0]
+
+
+
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Users\Mecha Sonic>"C:\Users\Mecha Sonic\Documents\SONIC HACKING\smps2asm-v0.0
+2\smps2asm.exe"
+Usage: smps2asm 
+[-b|--bank {ptrtable} 
+[-x|--extract [{pointer}]] 
+[-u|--saxman] [
+-o|--offset {offsetval}]
+[-s|--sfx]
+{-v|--sonicver} {version}
+[-3|--s3kmode] {input_filename} {outpu
+t_filename} {projname}
+
+        -s,--sfx        File is SFX, not music.
+        -b,--bank       Extracts an entire z80 bank whose pointer table is at ptrtable.
+                        The pointer table must reside in the bank, and this option cannot
+                        be combined with --extract or with --saxman.
+                        Since this is for extracting z80 banks, it is not compatible with
+                        --sonicver 1. If missing, ptrtable is assumed to be zero.
+        -u,--saxman     Assume music file is Saxman-compressed. In most cases, this
+                        should be combined with --offset 0x1380 --sonicver 2.
+        -x,--extract    Extract from {pointer} address in file. This should never be
+                        combined with --offset unless --saxman is also used.
+        -o,--offset     Assumes starting pointer for music/sfx within its soundbank
+                        is {offsetval}. Ignored if used with --sonicver 1.
+        -v,--sonicver   Sets Sonic version to {version}. This also sets underlying
+                        SMPS type. {version} can be '1' Sonic 1, '2' for Sonic 2 or
+                        '3' for Sonic 3, '4' for Sonic & Knuckles, or '5' for Sonic
+                        3D Blast.
+        -3,--s3kmode    This flag is valid for Sonic 1 and Sonic 2 only; this will
+                        cause all sequences of durations after a rest to be printed
+                        with the rests shown explicitly.
+                        WARNING: A smpsCall is assumed to set the note to something.
+                        other than a rest; this assumption turns out to be correct
+                        for all Sonic 1 and Sonic 2 songs and SFX, but it couldbe
+                        wrong for another game with a compatible SMPS implementation.
+                        Use with care.
+
+
+C:\Users\Mecha Sonic>

@@ -44,7 +44,7 @@ addsubOptimize = 0|gameRevision=2|allOptimizations
 relativeLea = 0|gameRevision<>2|allOptimizations
 ;	| If 1, makes some instructions use pc-relative addressing, instead of absolute long
 ;
-useFullWaterTables = 0
+useFullWaterTables = 1
 ;	| If 1, zone offset tables for water levels cover all level slots instead of only slots 8-$F
 ;	| Set to 1 if you've shifted level IDs around or you want water in levels with a level slot below 8
 
@@ -3501,9 +3501,10 @@ PalPtr_Title:	palptr Pal_Title, 1
 PalPtr_MenuB:	palptr Pal_MenuB, 0
 PalPtr_BGND:	palptr Pal_BGND,  0
 PalPtr_EHZ:	palptr Pal_EHZ,   1
-PalPtr_EHZ2:	palptr Pal_EHZ,   1
+PalPtr_EHZ2:	palptr Pal_ID01,   1
 PalPtr_WZ:	palptr Pal_WZ,    1
-PalPtr_EHZ3:	palptr Pal_EHZ,   1
+PalPtr_EHZ3:	palptr Pal_ID03,   1
+PalPtr_ID03_U:	palptr Pal_ID03_U, 0
 PalPtr_MTZ:	palptr Pal_MTZ,   1
 PalPtr_MTZ2:	palptr Pal_MTZ,   1
 PalPtr_WFZ:	palptr Pal_WFZ,   1
@@ -3555,7 +3556,10 @@ Pal_Title: palette Title screen.bin ; Title screen Palette
 Pal_MenuB: palette S2B Level Select.bin ; Leftover S2B level select palette
 Pal_BGND:  palette SonicAndTails.bin,SonicAndTails2.bin ; "Sonic and Miles" background palette (also usually the primary palette line)
 Pal_EHZ:   palette EHZ.bin ; Emerald Hill Zone palette
+Pal_ID01:  palette ID01.bin ; Emerald Hill Zone palette
 Pal_WZ:    palette Wood Zone.bin ; Wood Zone palette
+Pal_ID03:  palette ID03.bin ; fbz palette
+Pal_ID03_U: palette ID03 underwater.bin ; fbz palette
 Pal_MTZ:   palette MTZ.bin ; Metropolis Zone palette
 Pal_WFZ:   palette WFZ.bin ; Wing Fortress Zone palette
 Pal_HTZ:   palette HTZ.bin ; Hill Top Zone palette
@@ -4332,7 +4336,9 @@ Level_ClrRam:
 	; Bug: The '+C0' shouldn't be here; CNZ_saucer_data is only $40 bytes large
 	clearRAM CNZ_saucer_data,CNZ_saucer_data_End+$C0
 
-	cmpi.w	#chemical_plant_zone_act_2,(Current_ZoneAndAct).w ; CPZ 2
+        cmpi.b	#zone_3,(Current_Zone).w ; zone 3
+	beq.s	Level_InitWater
+        cmpi.b	#chemical_plant_zone,(Current_Zone).w ; CPZ 2
 	beq.s	Level_InitWater
 	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w ; ARZ
 	beq.s	Level_InitWater
@@ -4397,12 +4403,15 @@ Level_LoadPal:
 	bsr.w	PalLoad_Now	; load Sonic's palette line
 	tst.b	(Water_flag).w	; does level have water?
 	beq.s	Level_GetBgm	; if not, branch
-	moveq	#PalID_HPZ_U,d0	; palette number $15
+	moveq	#PalID_HPZ_U,d0	; palette number $15                  ;zone_3
 	cmpi.b	#hidden_palace_zone,(Current_Zone).w
 	beq.s	Level_WaterPal ; branch if level is HPZ
 	moveq	#PalID_CPZ_U,d0	; palette number $16
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
 	beq.s	Level_WaterPal ; branch if level is CPZ
+	moveq	#PalID_ID03_U,d0
+	cmpi.b	#zone_3,(Current_Zone).w
+	beq.s	Level_WaterPal ; branch if level is 03
 	moveq	#PalID_ARZ_U,d0	; palette number $17
 ; loc_409E:
 Level_WaterPal:
@@ -4809,7 +4818,7 @@ WaterHeight: zoneOrderedTable 2,2
 	zoneTableEntry.w  $600, $600	; EHZ
 	zoneTableEntry.w  $600, $600	; Zone 1
 	zoneTableEntry.w  $600, $600	; WZ
-	zoneTableEntry.w  $600, $600	; Zone 3
+	zoneTableEntry.w  $410, $510	; Zone 3
 	zoneTableEntry.w  $600, $600	; MTZ
 	zoneTableEntry.w  $600, $600	; MTZ
 	zoneTableEntry.w  $600, $600	; WFZ
@@ -4818,7 +4827,7 @@ WaterHeight: zoneOrderedTable 2,2
 	zoneTableEntry.w  $600, $600	; Zone 9
 	zoneTableEntry.w  $600, $600	; OOZ
 	zoneTableEntry.w  $600, $600	; MCZ
-	zoneTableEntry.w  $600, $600	; CNZ
+	zoneTableEntry.w  $600, $710	; CNZ
 	zoneTableEntry.w  $600, $710	; CPZ
 	zoneTableEntry.w  $600, $600	; DEZ
 	zoneTableEntry.w  $410, $510	; ARZ
@@ -5336,9 +5345,9 @@ LoadCollisionIndexes:
 ; ---------------------------------------------------------------------------
 Off_ColP: zoneOrderedTable 4,1
 	zoneTableEntry.l ColP_EHZHTZ
-	zoneTableEntry.l ColP_Invalid	; 1
+	zoneTableEntry.l ColP_ID01	; 1
 	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l ColP_Invalid	; 3
+	zoneTableEntry.l ColP_ID03	; 3
 	zoneTableEntry.l ColP_MTZ	; 4
 	zoneTableEntry.l ColP_MTZ	; 5
 	zoneTableEntry.l ColP_WFZSCZ	; 6
@@ -5363,9 +5372,9 @@ Off_ColP: zoneOrderedTable 4,1
 ; ---------------------------------------------------------------------------
 Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_EHZHTZ
-	zoneTableEntry.l ColP_Invalid	; 1
+	zoneTableEntry.l ColS_ID01	; 1
 	zoneTableEntry.l ColP_MTZ	; 2
-	zoneTableEntry.l ColP_Invalid	; 3
+	zoneTableEntry.l ColP_ID03	; 3
 	zoneTableEntry.l ColP_MTZ	; 4
 	zoneTableEntry.l ColP_MTZ	; 5
 	zoneTableEntry.l ColS_WFZSCZ	; 6
@@ -14172,12 +14181,12 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableBinEntry	2, "startpos/EHZ_1.bin"	; $00
 	zoneTableBinEntry	2, "startpos/EHZ_2.bin"
-	zoneTableEntry.w	$60,	$28F		; $01
-	zoneTableEntry.w	$60,	$2AF
+	zoneTableBinEntry	2, "startpos/ID01_1.bin"	; $00
+	zoneTableBinEntry	2, "startpos/ID01_2.bin"
 	zoneTableEntry.w	$60,	$1AC		; $02
 	zoneTableEntry.w	$60,	$1AC
-	zoneTableEntry.w	$60,	$28F		; $03
-	zoneTableEntry.w	$60,	$2AF
+	zoneTableBinEntry	2, "startpos/ID03_1.bin"	; $00
+	zoneTableBinEntry	2, "startpos/ID03_2.bin"
 	zoneTableBinEntry	2, "startpos/MTZ_1.bin"	; $04
 	zoneTableBinEntry	2, "startpos/MTZ_2.bin"
 	zoneTableBinEntry	2, "startpos/MTZ_3.bin"	; $05
@@ -14529,7 +14538,7 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 	zoneOffsetTableEntry.w SwScrl_EHZ	; $00
 	zoneOffsetTableEntry.w SwScrl_Minimal	; $01
 	zoneOffsetTableEntry.w SwScrl_Lev2	; $02
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $03
+	zoneOffsetTableEntry.w SwScrl_ID03	; $03
 	zoneOffsetTableEntry.w SwScrl_MTZ	; $04
 	zoneOffsetTableEntry.w SwScrl_MTZ	; $05
 	zoneOffsetTableEntry.w SwScrl_WFZ	; $06
@@ -16073,7 +16082,7 @@ SwScrl_CPZ:
     endm
 	addq.b	#1,d4
 	dbf	d1,-
-	rts
+	bra.w	SwScrl_Water
 ; ===========================================================================
 
 loc_D34A:
@@ -16100,9 +16109,10 @@ loc_D34A:
 
 	addq.b	#1,d4
 	dbf	d1,--
-	rts
+	bra.w	SwScrl_Water
 ; ===========================================================================
 ; loc_D382:
+
 SwScrl_DEZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
@@ -16260,6 +16270,67 @@ SwScrl_DEZ_RowHeights:
 	even
 ; ===========================================================================
 ; loc_D4AE:
+SwScrl_Water:
+	; this adds the LZ water ripple effect to any level
+	lea	(Deform_LZ_Data1).l,a3
+	lea	(Obj0A_WobbleData).l,a2
+
+	move.b	($FFFFF7D8).w,d2
+	move.b	d2,d3
+	addi.w	#$80,($FFFFF7D8).w ; '€'
+
+	add.w	($FFFFEE0C).w,d2
+	andi.w	#$FF,d2
+
+	add.w	(Camera_Y_pos).w,d3
+	andi.w	#$FF,d3
+
+	lea	(Horiz_Scroll_Buf).w,a1
+	move.w	#$DF,d1	; 'ß'
+	move.w	(Water_Level_1).w,d4
+	move.w	(Camera_Y_pos).w,d5
+-	; as long as the camera is above the water
+	cmp.w	d4,d5			; is camera below water?
+	bge.s	SwScrl_Water_doRipple	; if yes, branch
+	addq.w	#4,a1		; increment pointer
+	addq.w	#1,d5		; increment camera y pos
+	addq.b	#1,d2
+	addq.b	#1,d3
+	dbf	d1,-
+	rts
+	; does the LZ water ripple effect once the camera is below the water
+SwScrl_Water_doRipple:
+	move.b	(a3,d3.w),d4	; FG ripple effect
+	ext.w	d4
+	add.w	d4,(a1)+
+
+	move.b	(a2,d2.w),d4	; BG ripple effect
+	ext.w	d4
+	add.w	d4,(a1)+
+
+	addq.b	#1,d2
+	addq.b	#1,d3
+	dbf	d1,SwScrl_Water_doRipple
+	rts
+
+Deform_LZ_Data1:
+	dc.b   1,  1,  2,  2,  3,  3,  3,  3,  2,  2,  1,  1,  0,  0,  0,  0; 0
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 16
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 32
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 48
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 64
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 80
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 96
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 112
+	dc.b  -1, -1, -2, -2, -3, -3, -3, -3, -2, -2, -1, -1,  0,  0,  0,  0; 128
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 144
+	dc.b   1,  1,  2,  2,  3,  3,  3,  3,  2,  2,  1,  1,  0,  0,  0,  0; 160
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 176
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 192
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 208
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 224
+	dc.b   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0; 240
+
 SwScrl_ARZ:
 	move.w	(Camera_X_pos_diff).w,d4
 	ext.l	d4
@@ -16380,7 +16451,7 @@ SwScrl_ARZ:
 	neg.w	d0
 +	dbf	d2,-		; Loop until Horiz_Scroll_Buf is full
 
-	rts
+	bra.w	SwScrl_Water
 ; ===========================================================================
 ; byte_D5CE:
 SwScrl_ARZ_RowHeights:
@@ -16475,6 +16546,72 @@ SwScrl_Minimal:
 	dbf	d1,-
 
 	rts
+; ===========================================================================
+SwScrl_ID03:
+;	move.w	(Camera_X_pos_diff).w,d4
+;	ext.l	d4
+;	asl.l	#5,d4
+;	move.w	(Camera_Y_pos_diff).w,d5
+;	ext.l	d5
+;	asl.l	#6,d5
+;	bsr.w	SetHorizVertiScrollFlagsBG
+;	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+;	lea	(Horiz_Scroll_Buf).w,a1
+;	move.w	#bytesToLcnt($380),d1
+;	move.w	(Camera_X_pos).w,d0
+;	neg.w	d0
+;	swap	d0
+;	move.w	(Camera_BG_X_pos).w,d0
+;	neg.w	d0
+
+;-	move.l	d0,(a1)+
+;	dbf	d1,-
+
+	move.w	(Camera_X_pos_diff).w,d4
+	ext.l	d4
+	asl.l	#5,d4
+	move.w	(Camera_Y_pos_diff).w,d5
+	ext.l	d5
+	asl.l	#7,d5
+	bsr.w	SetHorizVertiScrollFlagsBG
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+	lea	(Horiz_Scroll_Buf).w,a1
+	move.w	#bytesToLcnt($380),d1
+	move.w	(Camera_X_pos).w,d0
+	neg.w	d0
+	swap	d0
+	move.w	(Camera_BG_X_pos).w,d0
+	neg.w	d0
+
+;-	move.l	d0,(a1)+
+;	dbf	d1,-
+
+
+;	move.w	#bytesToLcnt($E8),d1
+-	move.l	d0,(a1)+
+	dbf	d1,-
+
+;	move.w	d0,d3
+;	move.b	(Vint_runcount+3).w,d1
+;	andi.w	#7,d1
+;	bne.s	+
+;	subq.w	#1,(TempArray_LayerDef).w
+;+
+;	move.w	(TempArray_LayerDef).w,d1
+;	andi.w	#$1F,d1
+;	lea	(SwScrl_RippleData).l,a2
+;	lea	(a2,d1.w),a2
+
+;	move.w	#bytesToLcnt($54),d1
+;-	move.b	(a2)+,d0
+;	ext.w	d0
+;	add.w	d3,d0
+;	move.l	d0,(a1)+
+;	dbf	d1,-                   ;end of haze effect code
+	; note there is a bug here. the bottom 8 pixels haven't had their hscroll values set. only the EHZ scrolling code has this bug.
+
+	bra.w   SwScrl_Water ;rts used to be here
+
 ; ===========================================================================
 ; unused...
 ; loc_D69E:
@@ -23147,6 +23284,14 @@ Obj37_Init:
 	jsrto	(CalcSine).l, JmpTo4_CalcSine
 	move.w	d4,d2
 	lsr.w	#8,d2
+	tst.b	(Water_flag).w		; Does the level have water?
+	beq.s	.skiphalvingvel		; If not, branch and skip underwater checks
+	move.w	(Water_Level_2).w,d6	; Move water level to d6
+	cmp.w	y_pos(a0),d6		; Is the ring object underneath the water level?
+	bgt.s	.skiphalvingvel		; If not, branch and skip underwater commands
+	asr.w	d0			; Half d0. Makes the ring's x_vel bounce to the left/right slower
+	asr.w	d1			; Half d1. Makes the ring's y_vel bounce up/down slower
+.skiphalvingvel:
 	asl.w	d2,d0
 	asl.w	d2,d1
 	move.w	d0,d2
@@ -35741,6 +35886,9 @@ Obj02:
 	move.w	(Camera_Min_X_pos).w,(Tails_Min_X_pos).w
 	move.w	(Camera_Max_X_pos).w,(Tails_Max_X_pos).w
 	move.w	(Camera_Max_Y_pos_now).w,(Tails_Max_Y_pos).w
+        tst.w   (Debug_placement_mode).w    ; is debug mode being used?
+        beq.s   +                ; if not, branch
+        jmp     (DebugMode).l
 +
 	moveq	#0,d0
 	move.b	routine(a0),d0
@@ -35813,6 +35961,14 @@ Obj02_Init_Continued:
 Obj02_Control:
 	cmpa.w	#MainCharacter,a0
 	bne.s	Obj02_Control_Joypad2
+	tst.w   (Debug_mode_flag).w    ; is debug cheat enabled?
+        beq.s   +            ; if not, branch
+        btst    #button_B,(Ctrl_1_Press).w    ; is button B pressed?
+        beq.s   +            ; if not, branch
+        move.w  #1,(Debug_placement_mode).w    ; change Sonic into a ring/item
+        clr.b   (Control_Locked).w        ; unlock control
+        rts
++
 	move.w	(Ctrl_1_Logical).w,(Ctrl_2_Logical).w
 	tst.b	(Control_Locked).w	; are controls locked?
 	bne.s	Obj02_Control_Part2	; if yes, branch
@@ -37825,6 +37981,16 @@ return_1CBC4:
 ; ---------------------------------------------------------------------------
 ; loc_1CBC6:
 Obj02_Hurt:
+        cmpi.w  #2,(Player_mode).w
+        bne.s   +
+        tst.w   (Debug_mode_flag).w
+        beq.s   +
+        btst    #button_B,(Ctrl_1_Press).w
+        beq.s   +
+        move.w  #1,(Debug_placement_mode).w
+        clr.b   (Control_Locked).w
+        rts
++
 	jsr	(ObjectMove).l
 	addi.w	#$30,y_vel(a0)
 	btst	#6,status(a0)
@@ -37872,6 +38038,16 @@ return_1CC4E:
 
 ; loc_1CC50:
 Obj02_Dead:
+        cmpi.w  #2,(Player_mode).w
+        bne.s   +
+        tst.w   (Debug_mode_flag).w
+        beq.s   +
+        btst    #button_B,(Ctrl_1_Press).w
+        beq.s   +
+        move.w  #1,(Debug_placement_mode).w
+        clr.b   (Control_Locked).w
+        rts
++
 	bsr.w	Obj02_CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Tails_RecordPos
@@ -82489,8 +82665,8 @@ PLC_DYNANM: zoneOrderedOffsetTable 2,2		; Zone ID
 	zoneOffsetTableEntry.w Dynamic_Null	; $02
 	zoneOffsetTableEntry.w Animated_Null
 
-	zoneOffsetTableEntry.w Dynamic_Null	; $03
-	zoneOffsetTableEntry.w Animated_Null
+	zoneOffsetTableEntry.w Dynamic_Normal	; $03
+	zoneOffsetTableEntry.w Animated_FBZ
 
 	zoneOffsetTableEntry.w Dynamic_Normal	; $04
 	zoneOffsetTableEntry.w Animated_MTZ
@@ -82808,6 +82984,49 @@ Animated_EHZ:	zoneanimstart
 	dc.b   6,$17
 	dc.b   4, $B
 	dc.b   2,  9
+	even
+
+	zoneanimend
+
+Animated_FBZ:	zoneanimstart
+
+	zoneanimdecl $3F, ArtUnc_AniFBZ__0, $210,  2,$20
+	dc.b   0
+	dc.b   0
+	even
+
+	zoneanimdecl   7, ArtUnc_AniFBZ__1, $230,  6,  8
+	dc.b   0
+	dc.b   8
+	dc.b $10
+	dc.b   0
+	dc.b   8
+	dc.b $10
+	even
+
+	zoneanimdecl   1, ArtUnc_AniFBZ__2, $238,  8,$10
+	dc.b   0
+	dc.b $10
+	dc.b $20
+	dc.b $30
+	dc.b $40
+	dc.b $50
+	dc.b $60
+	dc.b $70
+	even
+
+	zoneanimdecl   7, ArtUnc_AniFBZ__3, $200,  2,  8
+	dc.b   0
+	dc.b   8
+	even
+
+	zoneanimdecl   7, ArtUnc_AniFBZ__4, $208,  6,  8
+	dc.b   0
+	dc.b   8
+	dc.b $10
+	dc.b   0
+	dc.b   8
+	dc.b $10
 	even
 
 	zoneanimend
@@ -83894,7 +84113,7 @@ BuildHUD_P1_Continued:
 	add.w	d1,d1
 	adda.w	(a1,d1.w),a1
 	move.w	(a1)+,d1
-	subq.w	#1,d1
+	subq.w	#1,d1                                               
 	jsrto	(DrawSprite_2P_Loop).l, JmpTo_DrawSprite_2P_Loop
 	move.w	#$B8,d3
 	move.w	#$108,d2
@@ -84200,7 +84419,7 @@ HudUpdate:
 	lea	(VDP_data_port).l,a6
 	tst.w	(Two_player_mode).w
 	bne.w	loc_40F50
-	tst.w	(Debug_mode_flag).w	; is debug mode on?
+	tst.w   (Debug_placement_mode).w    ; is debug mode active?
 	bne.w	loc_40E9A	; if yes, branch
 	tst.b	(Update_HUD_score).w	; does the score need updating?
 	beq.s	Hud_ChkRings	; if not, branch
@@ -85111,6 +85330,9 @@ Debug_ExitDebugMode:
 	; Exit debug mode
 	moveq	#0,d0
 	move.w	d0,(Debug_placement_mode).w
+        bsr.w   Hud_Base
+        move.b  #1,(Update_HUD_rings).w
+        move.b  #1,(Update_HUD_score).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	move.l	#Mapunc_Sonic,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
@@ -85134,7 +85356,6 @@ Debug_ExitDebugMode:
 return_41CB6:
 	rts
 ; End of function Debug_Control
-
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -85569,9 +85790,9 @@ cur_zone_str := "\{cur_zone_id}"
 ; dword_42594: MainLoadBlocks: saArtPtrs:
 LevelArtPointers:
 	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_EHZ,  ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   0 ; EHZ  ; EMERALD HILL ZONE
-	levartptrs PLCID_Miles1up, PLCID_MilesLife, PalID_EHZ2, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   1 ; LEV1 ; LEVEL 1 (UNUSED)
+	levartptrs PLCID_Miles1up, PLCID_MilesLife, PalID_EHZ2, ArtKos_ID01, BM16_ID01, BM128_ID01 ;   1 ; LEV1 ; LEVEL 1 (UNUSED)
 	levartptrs PLCID_Tails1up, PLCID_TailsLife, PalID_WZ,   ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   2 ; LEV2 ; LEVEL 2 (UNUSED)
-	levartptrs PLCID_Unused1,  PLCID_Unused2,   PalID_EHZ3, ArtKos_EHZ, BM16_EHZ, BM128_EHZ ;   3 ; LEV3 ; LEVEL 3 (UNUSED)
+	levartptrs PLCID_Unused1,  PLCID_Unused2,   PalID_EHZ3, ArtKos_ID03, BM16_ID03, BM128_ID03 ;   3 ; LEV3 ; LEVEL 3 (UNUSED)
 	levartptrs PLCID_Mtz1,     PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   4 ; MTZ  ; METROPOLIS ZONE ACTS 1 & 2
 	levartptrs PLCID_Mtz1,     PLCID_Mtz2,      PalID_MTZ,  ArtKos_MTZ, BM16_MTZ, BM128_MTZ ;   5 ; MTZ3 ; METROPOLIS ZONE ACT 3
 	levartptrs PLCID_Wfz1,     PLCID_Wfz2,      PalID_WFZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ;   6 ; WFZ  ; WING FORTRESS ZONE
@@ -85637,8 +85858,8 @@ PLCptr_Miles1up:	offsetTableEntry.w PlrList_Miles1up		; 6
 PLCptr_MilesLife:	offsetTableEntry.w PlrList_MilesLifeCounter	; 7
 PLCptr_Tails1up:	offsetTableEntry.w PlrList_Tails1up		; 8
 PLCptr_TailsLife:	offsetTableEntry.w PlrList_TailsLifeCounter	; 9
-PLCptr_Unused1:		offsetTableEntry.w PlrList_Mtz1			; 10
-PLCptr_Unused2:		offsetTableEntry.w PlrList_Mtz1			; 11
+PLCptr_Unused1:		offsetTableEntry.w PlrList_Arz1		        ; 10
+PLCptr_Unused2:		offsetTableEntry.w PlrList_Arz2			; 11
 PLCptr_Mtz1:		offsetTableEntry.w PlrList_Mtz1			; 12
 PLCptr_Mtz2:		offsetTableEntry.w PlrList_Mtz2			; 13
 			offsetTableEntry.w PlrList_Wfz1			; 14
@@ -85801,6 +86022,21 @@ PlrList_TailsLifeCounter_End
 ; PATTERN LOAD REQUEST LIST
 ; Metropolis Zone primary
 ;---------------------------------------------------------------------------------------
+PlrList_ID03:
+        plreq ArtTile_ArtNem_MtzWheel, ArtNem_MtzWheel
+	plreq ArtTile_ArtNem_MtzWheelIndent, ArtNem_MtzWheelIndent
+	plreq ArtTile_ArtNem_LavaCup, ArtNem_LavaCup
+	plreq ArtTile_ArtNem_BoltEnd_Rope, ArtNem_BoltEnd_Rope
+	plreq ArtTile_ArtNem_MtzSteam, ArtNem_MtzSteam
+	plreq ArtTile_ArtNem_MtzSpikeBlock, ArtNem_MtzSpikeBlock
+	plreq ArtTile_ArtNem_MtzSpike, ArtNem_MtzSpike
+	plreq ArtTile_ArtNem_Shellcracker, ArtNem_Shellcracker
+	plreq ArtTile_ArtNem_MtzSupernova, ArtNem_MtzSupernova
+PlrList_ID03_End
+;
+;
+;
+;
 PlrList_Mtz1: plrlistheader
 	plreq ArtTile_ArtNem_MtzWheel, ArtNem_MtzWheel
 	plreq ArtTile_ArtNem_MtzWheelIndent, ArtNem_MtzWheelIndent
@@ -86642,7 +86878,6 @@ PlrList_ResultsTails_Dup_End
     endif
 
 
-
 ;---------------------------------------------------------------------------------------
 ; Curve and resistance mapping
 ;---------------------------------------------------------------------------------------
@@ -86699,6 +86934,22 @@ ColP_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ primary 16x16 collision index.bin"
 ColS_CPZDEZ:	BINCLUDE	"collision/CPZ and DEZ secondary 16x16 collision index.bin"
 	even
 ;---------------------------------------------------------------------------------------
+; CPZ and DEZ primary 16x16 collision index (Kosinski compression)
+ColP_ID01:	BINCLUDE	"collision/ID01 primary 16x16 collision index.bin"
+	even
+;---------------------------------------------------------------------------------------
+; CPZ and DEZ secondary 16x16 collision index (Kosinski compression)
+ColS_ID01:	BINCLUDE	"collision/ID01 secondary 16x16 collision index.bin"
+	even
+;---------------------------------------------------------------------------------------
+; CPZ and DEZ primary 16x16 collision index (Kosinski compression)
+ColP_ID03:	BINCLUDE	"collision/ID03 primary 16x16 collision index.bin"
+	even
+;---------------------------------------------------------------------------------------
+; CPZ and DEZ secondary 16x16 collision index (Kosinski compression)
+ColS_ID03:	BINCLUDE	"collision/ID03 secondary 16x16 collision index.bin"
+	even
+;---------------------------------------------------------------------------------------
 ; ARZ primary 16x16 collision index (Kosinski compression)
 ColP_ARZ:	BINCLUDE	"collision/ARZ primary 16x16 collision index.bin"
 	even
@@ -86729,12 +86980,12 @@ ColP_Invalid:
 Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_EHZ1
 	zoneOffsetTableEntry.w Level_EHZ2	; 1
-	zoneOffsetTableEntry.w Level_EHZ1	; 2
-	zoneOffsetTableEntry.w Level_EHZ1	; 3
+	zoneOffsetTableEntry.w Level_ID01_1	; 2
+	zoneOffsetTableEntry.w Level_ID01_2	; 3
 	zoneOffsetTableEntry.w Level_EHZ1	; 4
 	zoneOffsetTableEntry.w Level_EHZ1	; 5
-	zoneOffsetTableEntry.w Level_EHZ1	; 6
-	zoneOffsetTableEntry.w Level_EHZ1	; 7
+	zoneOffsetTableEntry.w Level_ID03_1	; 6
+	zoneOffsetTableEntry.w Level_ID03_2	; 7
 	zoneOffsetTableEntry.w Level_MTZ1	; 8
 	zoneOffsetTableEntry.w Level_MTZ2	; 9
 	zoneOffsetTableEntry.w Level_MTZ3	; 10
@@ -86769,6 +87020,22 @@ Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
 ;---------------------------------------------------------------------------------------
 ; EHZ act 2 level layout (Kosinski compression)
 Level_EHZ2:	BINCLUDE	"level/layout/EHZ_2.bin"
+	even
+;---------------------------------------------------------------------------------------
+; EHZ act 1 level layout (Kosinski compression)
+Level_ID01_1:	BINCLUDE	"level/layout/ID01_1.bin"
+	even
+;---------------------------------------------------------------------------------------
+; EHZ act 2 level layout (Kosinski compression)
+Level_ID01_2:	BINCLUDE	"level/layout/ID01_2.bin"
+	even
+;---------------------------------------------------------------------------------------
+; EHZ act 1 level layout (Kosinski compression)
+Level_ID03_1:	BINCLUDE	"level/layout/ID03_1.bin"
+	even
+;---------------------------------------------------------------------------------------
+; EHZ act 2 level layout (Kosinski compression)
+Level_ID03_2:	BINCLUDE	"level/layout/ID03_2.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; MTZ act 1 level layout (Kosinski compression)
@@ -86860,6 +87127,16 @@ ArtUnc_Flowers2:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 2.bin"
 ArtUnc_Flowers3:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 3.bin"
 ArtUnc_Flowers4:	BINCLUDE	"art/uncompressed/EHZ and HTZ flowers - 4.bin"
 ;---------------------------------------------------------------------------------------
+ArtUnc_AniFBZ__0:	binclude "Levels/FBZ/Animated Tiles/0.bin"
+	even
+ArtUnc_AniFBZ__1:	binclude "Levels/FBZ/Animated Tiles/1.bin"
+	even
+ArtUnc_AniFBZ__2:	binclude "Levels/FBZ/Animated Tiles/2.bin"
+	even
+ArtUnc_AniFBZ__3:	binclude "Levels/FBZ/Animated Tiles/3.bin"
+	even
+ArtUnc_AniFBZ__4:	binclude "Levels/FBZ/Animated Tiles/4.bin"
+	even
 ; Uncompressed art
 ; Pulsing thing against checkered backing from EHZ ; ArtUnc_49914:
 ArtUnc_EHZPulseBall:	BINCLUDE	"art/uncompressed/Pulsing ball against checkered background (EHZ).bin"
@@ -87889,6 +88166,42 @@ ArtNem_EndingTails:	BINCLUDE	"art/nemesis/Final image of Tails.bin"
 	even
 ArtNem_EndingTitle:	BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin"
 
+ARTUNC_TTZAnimatedFanFG1:
+	BINCLUDE	 Uncompressed\ArtuncTTZAnimatedFanFG1.bin	; Fan tiles 1
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedFanFG2:
+	BINCLUDE	 Uncompressed\ArtuncTTZAnimatedFanFG2.bin	; Fan tiles 2
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG1:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG1.bin	; Turbine tiles 1
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG2:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG2.bin	; Turbine tiles 2
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG3:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG3.bin	; Turbine tiles 3
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG4:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG4.bin	; Turbine tiles 4
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG5:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG5.bin	; Turbine tiles 5
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG6:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG6.bin	; Turbine tiles 6
+	even
+; ---------------------------------------------------------------------------
+ARTUNC_TTZAnimatedTurbineBG7:
+	BINCLUDE  Uncompressed\ArtuncTTZAnimatedTurbineBG7.bin	; Turbine tiles 7
+	even
+
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; LEVEL ART AND BLOCK MAPPINGS (16x16 and 128x128)
@@ -88014,6 +88327,26 @@ ArtKos_CPZ:	BINCLUDE	"art/kosinski/CPZ_DEZ.bin"
 ;-----------------------------------------------------------------------------------
 ; CPZ/DEZ 128x128 block mappings (Kosinski compression)
 BM128_CPZ:	BINCLUDE	"mappings/128x128/CPZ_DEZ.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ 16x16 block mappings (Kosinski compression)
+BM16_ID01:	BINCLUDE	"mappings/16x16/ID01.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ main level patterns (Kosinski compression)
+; ArtKoz_B6174:
+ArtKos_ID01:	BINCLUDE	"art/kosinski/ID01.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ 128x128 block mappings (Kosinski compression)
+BM128_ID01:	BINCLUDE	"mappings/128x128/ID01.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ 16x16 block mappings (Kosinski compression)
+BM16_ID03:	BINCLUDE	"mappings/16x16/ID03.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ main level patterns (Kosinski compression)
+; ArtKoz_B6174:
+ArtKos_ID03:	BINCLUDE	"art/kosinski/ID03.bin"
+;-----------------------------------------------------------------------------------
+; CPZ/DEZ 128x128 block mappings (Kosinski compression)
+BM128_ID03:	BINCLUDE	"mappings/128x128/ID03.bin"
 ;-----------------------------------------------------------------------------------
 ; ARZ 16x16 block mappings (Kosinski compression)
 BM16_ARZ:	BINCLUDE	"mappings/16x16/ARZ.bin"
@@ -88442,12 +88775,12 @@ Rings_SCZ_2:	BINCLUDE	"level/rings/SCZ_2.bin"
 Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_EHZ_1	; 0  $00
 	zoneOffsetTableEntry.w  Objects_EHZ_2	; 1
-	zoneOffsetTableEntry.w  Objects_Null	; 2  $01
-	zoneOffsetTableEntry.w  Objects_Null	; 3
+	zoneOffsetTableEntry.w  Objects_ID01_1	; 2  $01
+	zoneOffsetTableEntry.w  Objects_ID01_2	; 3
 	zoneOffsetTableEntry.w  Objects_Null	; 4  $02
 	zoneOffsetTableEntry.w  Objects_Null	; 5
-	zoneOffsetTableEntry.w  Objects_Null	; 6  $03
-	zoneOffsetTableEntry.w  Objects_Null	; 7
+	zoneOffsetTableEntry.w  Objects_ID03_1	; 6  $03
+	zoneOffsetTableEntry.w  Objects_ID03_2	; 7
 	zoneOffsetTableEntry.w  Objects_MTZ_1	; 8  $04
 	zoneOffsetTableEntry.w  Objects_MTZ_2	; 9
 	zoneOffsetTableEntry.w  Objects_MTZ_3	; 10 $05
@@ -88555,11 +88888,13 @@ Objects_SCZ_2:	BINCLUDE	"level/objects/SCZ_2.bin"
 	ObjectLayoutBoundary
 Objects_Null:
 	ObjectLayoutBoundary
-	; Another strange space for a layout
+Objects_ID01_1:	BINCLUDE	"level/objects/ID01_1.bin" ; Another strange space for a layout
 	ObjectLayoutBoundary
-	; And another
+Objects_ID01_2:	BINCLUDE	"level/objects/ID01_2.bin"	; And another
 	ObjectLayoutBoundary
-	; And another
+Objects_ID03_1:	BINCLUDE	"level/objects/ID03_1.bin" ; Another strange space for a layout
+	ObjectLayoutBoundary
+Objects_ID03_2:	BINCLUDE	"level/objects/ID03_2.bin"	; And another	; And another
 	ObjectLayoutBoundary
 
 ; --------------------------------------------------------------------------------------

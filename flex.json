@@ -44,7 +44,8 @@
             ],
             "art": {
                 "path": "art\\nemesis\\HUD.bin",
-                "compression": "Nemesis"
+                "compression": "Nemesis",
+                "accessor": ""
             },
             "mappings": {
                 "path": "mappings\\sprite\\hud_c.bin",
@@ -59,6 +60,190 @@
                 "format": "Sonic 1",
                 "customDefinition": "",
                 "label": ""
+            }
+        },
+        {
+            "name": "CPZ palette",
+            "palettes": [
+                {
+                    "path": "..\\..\\SONIC HACKING\\Sonic_Crackers_(Split_Format_by_MarkeyJester)\\Sonic Crackers DisASM\\Palettes\\PalTechnoTowerZoneUnused.bin",
+                    "length": 2
+                }
+            ],
+            "art": {
+                "path": "",
+                "compression": "Uncompressed"
+            },
+            "mappings": {
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "Life icon",
+            "palettes": [],
+            "art": {
+                "path": "art\\nemesis\\Sonic lives counter.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "MTZ boss",
+            "palettes": [],
+            "art": {
+                "path": "..\\..\\SONIC HACKING\\NEWSONIC2ROMHACK\\s2disasm-master\\s2disasm-master\\art\\nemesis\\Eggpod.bin",
+                "compression": "Nemesis",
+                "accessor": ""
+            },
+            "mappings": {
+                "path": "..\\..\\SONIC HACKING\\NEWSONIC2ROMHACK\\s2disasm-master\\s2disasm-master\\mappings\\sprite\\obj51.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "Game Over",
+            "palettes": [],
+            "art": {
+                "path": "..\\..\\SONIC HACKING\\NEWSONIC2ROMHACK\\s2disasm-master\\s2disasm-master\\art\\nemesis\\Game and Time Over text.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "..\\..\\SONIC HACKING\\NEWSONIC2ROMHACK\\s2disasm-master\\s2disasm-master\\mappings\\sprite\\obj39.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "",
+            "palettes": [],
+            "art": {
+                "path": "art\\uncompressed\\Big and small numbers used on counters - 1.bin",
+                "compression": "Uncompressed",
+                "accessor": ""
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\hud_c.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "starpost",
+            "palettes": [],
+            "art": {
+                "path": "art\\nemesis\\Star pole.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\obj79_a.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "ring",
+            "palettes": [],
+            "art": {
+                "path": "art\\nemesis\\Ring.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\obj37_a.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
+            },
+            "dplcs": {
+                "enabled": false,
+                "path": "",
+                "format": "Sonic 1",
+                "customDefinition": "",
+                "label": ""
+            }
+        },
+        {
+            "name": "",
+            "palettes": [
+                {
+                    "path": "..\\..\\SONIC HACKING\\NEWSONIC2ROMHACK\\s2disasm-master\\s2disasm-master\\art\\palettes\\ID01.bin",
+                    "length": 3
+                }
+            ],
+            "art": {
+                "path": "art\\nemesis\\Sonic and Tails animation frames in special stage.bin",
+                "compression": "Nemesis"
+            },
+            "mappings": {
+                "path": "mappings\\sprite\\obj09.bin",
+                "format": "Sonic 2",
+                "customDefinition": "",
+                "label": ""
+            },
+            "dplcs": {
+                "enabled": true,
+                "path": "mappings\\spriteDPLC\\obj09.bin",
+                "format": "Sonic 2/3&K",
+                "customDefinition": "",
+                "label": "",
+                "accessor": ""
             }
         }
     ]

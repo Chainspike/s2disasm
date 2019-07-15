@@ -390,6 +390,7 @@ PalID_ARZ =	id(PalPtr_ARZ) ; 13
 PalID_SCZ =	id(PalPtr_SCZ) ; 14
 PalID_HPZ_U =	id(PalPtr_HPZ_U) ; 15
 PalID_CPZ_U =	id(PalPtr_CPZ_U) ; 16
+PalID_ID03_U =	id(PalPtr_ID03_U) ; 7
 PalID_ARZ_U =	id(PalPtr_ARZ_U) ; 17
 PalID_SS =	id(PalPtr_SS) ; 18
 PalID_MCZ_B =	id(PalPtr_MCZ_B) ; 19
